@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"rootDir": ".",
+		"outDir": "./dist",
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext",
+		],
+		"noImplicitAny": false,
+		"allowJs": true,
+		"checkJs": true,
+		"noEmit": true
+	},
+	"include": [
+		"./**/*.js",
+		"./**/*.ts",
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

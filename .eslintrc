@@ -1,0 +1,81 @@
+{
+    "extends": [
+        "eslint:recommended"
+    ],
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "env": {
+        "es6": true,
+        "node": true,
+        "browser": true
+    },
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module",
+		"project": "tsconfig.json"
+    },
+    "rules": {
+        "lines-between-class-members": "warn",
+        "no-multiple-empty-lines": [
+			"warn",
+			{
+				"max": 1,
+				"maxEOF": 1,
+				"maxBOF": 0
+			}
+		],
+        "no-multi-spaces": "warn",
+        "indent": [
+			"warn",
+			4,
+			{
+				"SwitchCase": 1
+			}
+		],
+        "semi": ["warn", "always", { "omitLastInOneLineBlock": true }],
+        "keyword-spacing": [ "warn", {
+            "before": true,
+            "after": true
+        }],
+        "block-spacing": ["warn", "always"],
+        "space-infix-ops": ["warn", {
+            "int32Hint": true
+        }],
+        "space-unary-ops": ["warn", {
+            "words": true,
+            "nonwords": true,
+            "overrides": {
+                "--": false,
+                "++": false,
+                "!": false
+            }
+        }],
+        "no-whitespace-before-property": ["warn"],
+        "object-curly-spacing": [ "warn", "always", {
+            "arraysInObjects": true,
+            "objectsInObjects": true
+        }],
+        "space-before-blocks": [ "warn", "always" ],
+        "comma-spacing": ["warn", {
+            "before": false,
+            "after": true
+        }],
+        "comma-dangle": ["warn", {
+            "objects": "never",
+            "arrays": "never",
+            "functions": "never"
+        }],
+        "padding-line-between-statements": ["warn",
+            { "blankLine": "always", "prev": "*", "next": ["export", "function"] }
+        ],
+        "padded-blocks": ["warn", "never"],
+        "object-curly-newline":[ "warn", { "minProperties": 2 } ],
+        "array-element-newline" : [ "warn", { "minItems": 3 } ],
+        "array-bracket-newline": [ "warn", { "minItems": 3 } ],
+        "array-bracket-spacing": [ "warn", "never"],
+        "multiline-ternary": ["warn", "never"],
+        "quotes": [ "warn", "double" ]
+	}
+}
