@@ -2,11 +2,13 @@
     "name": "diannex-js",
     "version": "1.0.0",
     "description": "",
-    "main": "./dist/diannex.js",
+    "main": "./dist/diannex.ts",
     "scripts": {
         "build": "npm-run-all --parallel build:*",
+        "build:tests": "esbuild ./src/tests/index.ts --bundle --outdir=./dist/tests --platform=node --allow-overwrite",
         "build:core-cjs": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.js --platform=node --format=cjs --allow-overwrite",
-        "build:core-esm": "esbuild ./index-web.ts --bundle --minify --outfile=./dist/diannex.mjs --format=esm --allow-overwrite"
+        "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --format=esm --allow-overwrite",
+        "test": "node ./dist/tests/index.js"
     },
     "exports": {
         ".": {
@@ -23,13 +25,17 @@
     "author": "MadCreativity",
     "license": "MIT",
     "dependencies": {
-        "npm-run-all": "^4.1.5",
-        "esbuild": "^0.12.9",
         "@types/node": "^16.0.0",
         "@typescript-eslint/eslint-plugin": "^4.25.0",
         "@typescript-eslint/parser": "^4.25.0",
+        "esbuild": "^0.12.9",
         "eslint": "^7.27.0",
-        "typescript": "^4.3.2"
+        "npm-run-all": "^4.1.5",
+        "pako": "^2.0.3",
+        "ts-node": "^10.1.0",
+        "typescript": "^4.3.5"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@types/pako": "^1.0.1"
+    }
 }
