@@ -3,18 +3,18 @@
         "eslint:recommended"
     ],
     "plugins": [
-        //"@typescript-eslint"
+        "@typescript-eslint"
     ],
     "env": {
         "es6": true,
         "node": true,
         "browser": true
     },
-	//"parser": "@typescript-eslint/parser",
+	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-        "ecmaVersion": 2020,
+        "ecmaVersion": 2021,
         "sourceType": "module",
-		"project": "jsconfig.json"
+		"project": "tsconfig.json"
     },
     "rules": {
         "no-multiple-empty-lines": [

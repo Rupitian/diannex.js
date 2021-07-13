@@ -12,7 +12,8 @@
 		"allowJs": true,
 		"checkJs": true,
 		"noEmit": true,
-		"moduleResolution": "Node"
+		"moduleResolution": "Node",
+		"target": "ES2021"
 	},
 	"include": [
 		"./**/*.js",

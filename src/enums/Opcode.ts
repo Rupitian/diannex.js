@@ -1,3 +1,6 @@
+/**
+ * Represents all possible instruction operations.
+ */
 enum Opcode {
     nop = 0x00, // No-op
 
@@ -75,8 +78,6 @@ enum Opcode {
     choosesel = 0x4D, // Jumps to one of the choices, using the addresses and chances/requirement values on the stack
 
     textrun = 0x4E, // Pauses the interpreter, running a line of text from the stack
-
-    PATCH_CALL = 0xFF, // A call instruction to be patched on serialization to either call or callext [string function name]
 };
 
 export default Opcode;

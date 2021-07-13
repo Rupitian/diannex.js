@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as zlib from "zlib";
 
 import BinaryReader from "classes/BinaryReader";
+import Definition from "types/Definition";
 
 /**
  * Representation of the binary.
@@ -22,11 +23,7 @@ class Binary {
         symbol: number,
         instructionIndices: number[]
     }>;
-    definitions: Array<{
-        symbol: number,
-        reference: number,
-        instructionIndex: number
-    }>;
+    definitions: Array<Definition>;
 
     constructor() {
         this.translationLoaded = false;
@@ -41,7 +38,6 @@ class Binary {
         this.definitions = [];
     }
     
-
     /**
      * Reads DXB data from file.
      * @param path Path to file
@@ -67,7 +63,7 @@ class Binary {
         // Version
         const version: number = br.readUInt8();
 
-        if(version != 3) {
+        if (version != 3) {
             throw new Error("Binary file not for this version of Diannex.");
         }
 
@@ -89,7 +85,7 @@ class Binary {
         br.readUInt32(); // Size
         let bfr: BinaryReader = br;
 
-        if(flags.compressed) {
+        if (flags.compressed) {
             br.readUInt32(); // Compressed size
 
             bfr = new BinaryReader(zlib.inflateSync(buf.slice(br.pos)));
@@ -99,12 +95,12 @@ class Binary {
         {
             const size: number = bfr.readUInt32();
 
-            for(let i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 const symbol: number = bfr.readUInt32();
                 const indicesSize: number = bfr.readUInt16();
                 const instructionIndices: number[] = [];
                 
-                for(let j = 0; j < indicesSize; j++) {
+                for (let j = 0; j < indicesSize; j++) {
                     instructionIndices.push(bfr.readInt32());
                 }
 
@@ -119,12 +115,12 @@ class Binary {
         {
             const size: number = bfr.readUInt32();
 
-            for(let i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 const symbol: number = bfr.readUInt32();
                 const indicesSize: number = bfr.readUInt16();
                 const instructionIndices: number[] = [];
                 
-                for(let j = 0; j < indicesSize; j++) {
+                for (let j = 0; j < indicesSize; j++) {
                     instructionIndices.push(bfr.readInt32());
                 }
 
@@ -139,9 +135,9 @@ class Binary {
         {
             const size: number = bfr.readUInt32();
 
-            for(let i = 0; i < size; i++) {
-                const symbol: number  = bfr.readUInt32();
-                const reference: number  = bfr.readUInt32();
+            for (let i = 0; i < size; i++) {
+                const symbol: number = bfr.readUInt32();
+                const reference: number = bfr.readUInt32();
                 const instructionIndex: number = bfr.readInt32();
 
                 bin.definitions.push({
@@ -165,17 +161,17 @@ class Binary {
 
             console.log(`Internal string count: ${size}`);
 
-            for(let i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 bin.stringTable.push(bfr.readString());
             }
         }
 
         // Internal translation file
-        if(flags.internalTranslationFile) {
+        if (flags.internalTranslationFile) {
             const size: number = bfr.readUInt32();
             console.log(`Translation string count: ${size}`);
 
-            for(let i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 bin.translationTable.push(bfr.readString());
             }
         }
@@ -185,7 +181,7 @@ class Binary {
             const size: number = bfr.readUInt32();
             console.log(`External function count: ${size}`);
 
-            for(let i = 0; i < size; i++) {
+            for (let i = 0; i < size; i++) {
                 bin.externalFunctionList.push(bfr.readUInt32());
             }
         }
