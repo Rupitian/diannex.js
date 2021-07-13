@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import Opcode from "enums/Opcode";
 import Definition from "types/Definition";
 import Value from "types/Value";
@@ -42,13 +44,13 @@ class Interpreter {
         return this.#sceneCompleted;
     }
 
-    #currentScene: boolean;
-    get currentScene(): boolean {
+    #currentScene: string;
+    get currentScene(): string {
         return this.#currentScene;
     }
 
-    #currentText: boolean;
-    get currentText(): boolean {
+    #currentText: string;
+    get currentText(): string {
         return this.#currentText;
     }
 
@@ -153,19 +155,84 @@ class Interpreter {
     }
 
     loadTranslationFile(path: string): void {
+        const fileContents: string[] = fs.readFileSync(path).toString().split("\n");
 
+        this.binary.translationTable = [];
+
+        for (const s of fileContents) {
+            if (!s.startsWith("#") && !s.startsWith("@") && s.trim() != "") {
+                this.binary.translationTable.push(s);
+            }
+        }
+
+        this.binary.translationLoaded = true;
+
+        for (const def of this.binary.definitions) {
+            const name: string = this.binary.stringTable[def.symbol];
+            const val: string = this.getDefinition(def);
+            this.#definitions[name] = val;
+        }
     }
 
     runScene(sceneName: string): void {
+        if (!this.binary.translationLoaded && this.binary.translationTable.length == 0) {
+            console.log("[WARNING]: Currently no translations have been loaded! The program will crash when trying to run dialogue!");
+        }
 
+        let sceneId = this.lookupScene(sceneName);
+        let scene = this.binary.scenes[sceneId];
+        let bytecodeIndexes = scene.instructionIndices;
+
+        this.#localVarStore = new LocalVariableStore(this);
+        this.#stack = [];
+
+        for (let i: number = 1, flagIndex = 0; i < bytecodeIndexes.length; flagIndex++) {
+            this.#instructionPointer = bytecodeIndexes[i++];
+            this.#paused = false;
+            
+            while (!this.#paused) {
+                this.update();
+            }
+
+            let value = this.#stack.pop();
+
+            this.#instructionPointer = bytecodeIndexes[i++];
+            this.#paused = false;
+
+            while (!this.#paused) {
+                this.update();
+            }
+
+            let name = this.#stack.pop().toString();
+
+            if (!this.flags[name]) {
+                this.setFlag(name, value);
+            }
+
+            this.#localVarStore.flagMap[flagIndex] = name;
+        }
+
+        this.#paused = false;
+        this.#instructionPointer = bytecodeIndexes[0];
+        this.#currentScene = sceneName;
     }
 
     chooseChoice(idx: number): void {
+        if (idx >= this.#choices.length) {
+            throw new Error(`Choice at index ${idx} is outside of the range of choices.`);
+        }
 
+        let ip = this.#choices[idx].address;
+        this.#instructionPointer = ip;
+        this.#selectChoice = false;
+        this.#paused = false;
     }
 
     resume(): void {
+        if (this.#runningText) this.#runningText = false;
+        if (this.#currentScene === null || !this.#paused) return;
 
+        if (!this.#selectChoice) this.#paused = false;
     }
 
     update(): void {
@@ -203,39 +270,94 @@ class Interpreter {
     }
 
     constructArray(elementCount: number): Value {
-        return;
+        const values: Value[] = [];
+
+        for (let i: number = 0; i < elementCount; i++) {
+            values.push(this.#stack.pop());
+        }
+
+        return values;
     }
 
     interpolate(format: string, exprCount: number): string {
+        const args: Value[] = [];
+
+        for (let i: number = 0; i < exprCount; i++) {
+            const val = this.#stack.pop();
+
+            args.push(val);
+        }
+        
         return;
+
+        // TODO: Question Shad about this functionality
     }
 
     lookupScene(sceneName: string): number {
-        return;
+        const id: number = this.lookupString(sceneName);
+        if (id === - 1) {
+            throw new InterpreterRuntimeException("Scene could not be found!");
+        }
+
+        const scene: number = this.binary.scenes.findIndex(s => s.symbol === id);
+        if (scene === - 1) {
+            throw new InterpreterRuntimeException("Scene could not be found!");
+        }
+
+        return scene;
     }
 
     lookupFunction(funcName: string): number {
-        return;
+        const id: number = this.lookupString(funcName);
+        if (id === - 1) {
+            throw new InterpreterRuntimeException("Function could not be found!");
+        }
+
+        const func: number = this.binary.functions.findIndex(s => s.symbol === id);
+        if (func === - 1) {
+            throw new InterpreterRuntimeException("Function could not be found!");
+        }
+
+        return func;
     }
 
     lookupDefinition(defName: string): Definition {
-        return;
-    }    
+        const id: number = this.lookupString(defName);
+        if (id === - 1) {
+            throw new InterpreterRuntimeException("Definition could not be found!");
+        }
+
+        const def: Definition|undefined = this.binary.definitions.find(s => s.symbol === id);
+        if (def === undefined) {
+            throw new InterpreterRuntimeException("Definition could not be found!");
+        }
+
+        return def;
+    }
 
     lookupString(str: string): number {
-        return;
+        return this.binary.stringTable.findIndex(s => s === str);
     }
 
     disassemble(idx: number): string {
-        return;
+        
     }
 
     disassembleToFile(path: string): void {
-
+        
     }
 
     toAssembledName(op: Opcode): string {
-        return;
+        
+    }
+}
+
+/**
+ * Thrown whenever an error occurs during Interpreter execution.
+ */
+class InterpreterRuntimeException extends Error {
+    constructor(...params) {
+        super(...params);
     }
 }
 

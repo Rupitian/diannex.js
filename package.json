@@ -1,5 +1,5 @@
 {
-    "name": "diannex-js",
+    "name": "diannex.js",
     "version": "1.0.0",
     "description": "",
     "main": "./dist/diannex.ts",
