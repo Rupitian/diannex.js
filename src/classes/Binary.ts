@@ -12,7 +12,7 @@ class Binary {
     stringTable: string[];
     translationTable: string[];
 
-    instructions: number[];
+    instructions: Buffer;
     externalFunctionList: number[];
 
     scenes: Array<{
@@ -30,7 +30,7 @@ class Binary {
         this.stringTable = [];
         this.translationTable = [];
 
-        this.instructions = [];
+        this.instructions = Buffer.from([]);
         this.externalFunctionList = [];
 
         this.scenes = [];
@@ -152,7 +152,7 @@ class Binary {
         {
             const size: number = bfr.readUInt32();
 
-            bin.instructions = bfr.readBytes(size);
+            bin.instructions = Buffer.from(bfr.readBytes(size));
         }
 
         // Internal string table
