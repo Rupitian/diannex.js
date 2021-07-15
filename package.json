@@ -8,7 +8,7 @@
         "build:tests": "esbuild ./src/tests/index.ts --bundle --outdir=./dist/tests --platform=node --allow-overwrite",
         "build:core-cjs": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.js --platform=node --format=cjs --allow-overwrite",
         "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --format=esm --allow-overwrite",
-        "test": "node ./dist/tests/index.js"
+        "test": "npx jest"
     },
     "exports": {
         ".": {
@@ -25,17 +25,20 @@
     "author": "MadCreativity",
     "license": "MIT",
     "dependencies": {
-        "@types/node": "^16.0.0",
-        "@typescript-eslint/eslint-plugin": "^4.25.0",
-        "@typescript-eslint/parser": "^4.25.0",
         "esbuild": "^0.12.9",
-        "eslint": "^7.27.0",
         "npm-run-all": "^4.1.5",
-        "pako": "^2.0.3",
-        "ts-node": "^10.1.0",
-        "typescript": "^4.3.5"
+        "pako": "^2.0.3"
     },
     "devDependencies": {
-        "@types/pako": "^1.0.1"
+        "eslint": "^7.27.0",
+        "@typescript-eslint/eslint-plugin": "^4.25.0",
+        "@typescript-eslint/parser": "^4.25.0",
+        "@types/jest": "^26.0.24",
+        "@types/pako": "^1.0.1",
+        "@types/node": "^16.0.0",
+        "eslint-plugin-jest": "^24.3.6",
+        "jest": "^27.0.6",
+        "ts-jest": "^27.0.3",
+        "typescript": "^4.3.5"
     }
 }
