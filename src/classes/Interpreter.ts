@@ -788,13 +788,53 @@ class Interpreter {
     }
 
     interpolate(format: string, exprCount: number): string {
-        format = format.replace(/(?<!\\)\$({.*?})/g, "${$1}");
-
-        let str = format;
+        // Read all values
+        const values: Value[] = [];
         for (let i: number = 0; i < exprCount; i++) {
             const val = this.#stack.pop();
+            values.push(val);
+        }
 
-            str = str.replace(new RegExp(`{${i}}`, "g"), val.toString());
+        // Replace ${i} with values[i], but not if $ or { are preceeded with a \.
+        let str: string = format;
+        let insertStart: number = -1;
+        let isEscaping: boolean = false;
+        
+        for (let i: number = 0; i < str.length; i++) {
+            switch (str[i]) {
+                case "\\": {
+                    isEscaping = !isEscaping;
+                    continue;
+                }
+
+                case "$": {
+                    if (!isEscaping) {
+                        insertStart = i;
+                    }
+                    break;
+                }
+
+                case "{": {
+                    if (isEscaping) {
+                        insertStart = -1;
+                    }
+                    break;
+                }
+
+                case "}": {
+                    if (insertStart != -1) {
+                        const start: string = str.slice(0, insertStart);
+                        const id: number = parseInt(str.slice(insertStart + 2, i));
+                        const end: string = str.slice(i + 1);
+                    
+                        str = start + values[id] + end;
+                        insertStart = -1;
+                    }
+                    break;
+                }
+            }
+
+            isEscaping = false;
         }
         
         return str;
