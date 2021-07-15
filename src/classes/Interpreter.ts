@@ -364,7 +364,7 @@ class Interpreter {
 
                     this.#localVarStore.add(val);
                 } else {
-                    this.#localVarStore[arg1] = val;
+                    this.#localVarStore.set(arg1, val);
                 }
                 break;
             }
@@ -374,7 +374,7 @@ class Interpreter {
                 break;
 
             case Opcode.PushVarLocal:
-                this.#stack.push(this.#localVarStore[arg1]);
+                this.#stack.push(this.#localVarStore.get(arg1));
                 break;
 
             case Opcode.Pop:
@@ -788,11 +788,7 @@ class Interpreter {
     }
 
     interpolate(format: string, exprCount: number): string {
-        // Replace an escaped interpolated ("\${}") with the escaped format equivalent ("{{}}")
-        format = format.replace(/\\\$({.*?})/g, "{$1}");
-
-        // Replace an interpolation ("${}") with the format equivalent ("{}")
-        format = format.replace(/\$({.*?})/g, "$1");
+        format = format.replace(/(?<!\\)\$({.*?})/g, "${$1}");
 
         let str = format;
         for (let i: number = 0; i < exprCount; i++) {
@@ -850,17 +846,19 @@ class Interpreter {
         return this.binary.stringTable.findIndex(s => s === str);
     }
 
-    /*disassemble(idx: number): string {
-        
+    // #region DEBUG
+    disassemble(idx: number): string {
+        return;
     }
 
     disassembleToFile(path: string): void {
-        
+        return;
     }
 
     toAssembledName(op: Opcode): string {
-        
-    }*/
+        return;
+    }
+    // #endregion
 }
 
 /**
