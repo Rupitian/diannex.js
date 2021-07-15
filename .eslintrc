@@ -17,6 +17,16 @@
 		"project": "tsconfig.json"
     },
     "rules": {
+        "@typescript-eslint/indent": [
+			"warn",
+			4,
+			{
+				"SwitchCase": 1
+			}
+		],
+        "@typescript-eslint/no-unused-vars": ["warn"],
+
+        "no-unused-vars": "off",
         "no-multiple-empty-lines": [
 			"warn",
 			{
@@ -26,13 +36,6 @@
 			}
 		],
         "no-multi-spaces": "warn",
-        "indent": [
-			"warn",
-			4,
-			{
-				"SwitchCase": 1
-			}
-		],
         "semi": ["warn", "always", { "omitLastInOneLineBlock": true }],
         "keyword-spacing": [ "warn", {
             "before": true,
@@ -72,11 +75,12 @@
             { "blankLine": "always", "prev": "var", "next": "return" }
         ],
         "padded-blocks": ["warn", "never"],
-        "object-curly-newline":[ "warn", { "minProperties": 2 } ],
+        "object-curly-newline":[ "warn", { "minProperties": 2, "multiline": true } ],
         "array-element-newline" : [ "warn", { "minItems": 3 } ],
         "array-bracket-newline": [ "warn", { "minItems": 3 } ],
         "array-bracket-spacing": [ "warn", "never"],
         "multiline-ternary": ["warn", "never"],
-        "quotes": [ "warn", "double" ]
+        "quotes": [ "warn", "double" ],
+        "object-property-newline": ["warn", { "allowAllPropertiesOnSameLine": true }]
 	}
 }
