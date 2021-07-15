@@ -1,7 +1,6 @@
-import Opcode from "enums/Opcode";
 import * as fs from "fs";
 
-//import Opcode from "enums/Opcode";
+import Opcode from "enums/Opcode";
 import Definition from "types/Definition";
 import Value from "types/Value";
 import Binary from "./Binary";
@@ -105,8 +104,8 @@ class Interpreter {
                 }
 
                 let random: number = Math.random() * (sum - 1);
-                let selection: number = - 1;
-                let previous: number = - 1;
+                let selection: number = -1;
+                let previous: number = -1;
 
                 for (let i: number = 0; i < fixedWeights.length; i++) {
                     let current: number = fixedWeights[i];
@@ -140,9 +139,9 @@ class Interpreter {
         this.#definitions = {};
 
         if (binary.translationLoaded) {
-            for (const def in binary.definitions) {
-                const val: string = this.getDefinition(binary.definitions[def]);
-                this.#definitions[binary.stringTable[def]] = val;
+            for (const def of binary.definitions) {
+                const val: string = this.getDefinition(def);
+                this.#definitions[binary.stringTable[def.symbol]] = val;
             }
         }
     }
@@ -331,48 +330,44 @@ class Interpreter {
                 this.#stack.push(this.constructArray(arg1));
                 break;
 
-            case Opcode.PushArrayIndex:
-                {
-                    let indx: Value = this.#stack.pop();
-                    let arr: Value = this.#stack.pop();
-                    if (typeof indx === "number") this.#stack.push(arr[indx]);
-                }
+            case Opcode.PushArrayIndex: {
+                let indx: Value = this.#stack.pop();
+                let arr: Value = this.#stack.pop();
+                if (typeof indx === "number") this.#stack.push(arr[indx]);
                 break;
+            }
 
-            case Opcode.SetArrayIndex:
-                {
-                    let val: Value = this.#stack.pop();
-                    let indx: Value = this.#stack.pop();
-                    let arr: Value = this.#stack.pop();
-                    if (typeof indx === "number") arr[indx] = val;
-                    this.#stack.push(arr);
-                }
+            case Opcode.SetArrayIndex: {
+                let val: Value = this.#stack.pop();
+                let indx: Value = this.#stack.pop();
+                let arr: Value = this.#stack.pop();
+                if (typeof indx === "number") arr[indx] = val;
+                this.#stack.push(arr);
                 break;
+            }
 
-            case Opcode.SetVarGlobal:
-                {
-                    let val: Value = this.#stack.pop();
-                    this.globalVariableStore[this.binary.stringTable[arg1]] = val;
-                }
+            case Opcode.SetVarGlobal: {
+                let val: Value = this.#stack.pop();
+                this.globalVariableStore[this.binary.stringTable[arg1]] = val;
                 break;
+            }
 
-            case Opcode.SetVarLocal:
-                {
-                    let val: Value = this.#stack.pop();
+            case Opcode.SetVarLocal: {
+                let val: Value = this.#stack.pop();
 
-                    if (arg1 >= this.#localVarStore.count) {
-                        let count: number = arg1 - this.#localVarStore.count - 1;
+                if (arg1 >= this.#localVarStore.count) {
+                    let count: number = arg1 - this.#localVarStore.count - 1;
 
-                        for (let i: number = 0; i < count; i++) {
-                            this.#localVarStore.add(undefined);
-                        }
-
-                        this.#localVarStore.add(val);
-                    } else {
-                        this.#localVarStore[arg1] = val;
+                    for (let i: number = 0; i < count; i++) {
+                        this.#localVarStore.add(undefined);
                     }
+
+                    this.#localVarStore.add(val);
+                } else {
+                    this.#localVarStore[arg1] = val;
                 }
                 break;
+            }
 
             case Opcode.PushVarGlobal:
                 this.#stack.push(this.globalVariableStore[this.binary.stringTable[arg1]]);
@@ -386,185 +381,164 @@ class Interpreter {
                 this.#stack.pop();
                 break;
 
-            case Opcode.Duplicate:
-                {
-                    let val: Value = this.#stack.pop();
-                    this.#stack.push(val);
-                    this.#stack.push(val);
-                }
+            case Opcode.Duplicate: {
+                let val: Value = this.#stack.pop();
+                this.#stack.push(val);
+                this.#stack.push(val);
                 break;
+            }
 
-            case Opcode.Duplicate2:
-                {
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    this.#stack.push(val2);
-                    this.#stack.push(val1);
-                    this.#stack.push(val2);
-                    this.#stack.push(val1);
-                }
+            case Opcode.Duplicate2: {
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                this.#stack.push(val2);
+                this.#stack.push(val1);
+                this.#stack.push(val2);
+                this.#stack.push(val1);
                 break;
+            }
 
-                // #endregion
+            // #endregion
     
             // #region Value modification
-            case Opcode.Add:
-                { 
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 + val1); 
-                }
+            case Opcode.Add: { 
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 + val1); 
                 break;
+            }
 
-            case Opcode.Subtract:
-                {
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 - val1); 
-                }
+            case Opcode.Subtract: {
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 - val1); 
                 break;
+            }
+                
+            case Opcode.Multiply: { 
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 * val1);
+                break;
+            }
 
-            case Opcode.Multiply:
-                { 
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 * val1);
-                }
+            case Opcode.Divide: { 
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 / val1); 
                 break;
+            }
 
-            case Opcode.Divide:
-                { 
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 / val1); 
-                }
+            case Opcode.Modulo: {
+                let val1: Value = this.#stack.pop();
+                let val2: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 % val1); 
                 break;
-
-            case Opcode.Modulo:
-                {
-                    let val1: Value = this.#stack.pop();
-                    let val2: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val2 % val1); 
-                }
-                break;
+            }
                 
             case Opcode.Negate:
-                this.#stack.push(- this.#stack.pop());
+                this.#stack.push(-this.#stack.pop());
                 break;
 
-            case Opcode.Invert:
-                {
-                    let val: Value = this.#stack.pop();
-                    this.#stack.push(val ? 0 : 1);
-                }
+            case Opcode.Invert: {
+                let val: Value = this.#stack.pop();
+                this.#stack.push(val ? 0 : 1);
                 break;
+            }
 
-            case Opcode.BitLeftShift:
-                {
-                    let shift: Value = this.#stack.pop();
-                    let val = this.#stack.pop();
-                    if (typeof shift === "number" && typeof val === "number") this.#stack.push(val << shift); 
-                }
+            case Opcode.BitLeftShift: {
+                let shift: Value = this.#stack.pop();
+                let val: Value = this.#stack.pop();
+                if (typeof shift === "number" && typeof val === "number") this.#stack.push(val << shift); 
                 break;
+            }
 
-            case Opcode.BitRightShift:
-                {
-                    let shift: Value = this.#stack.pop();
-                    let val: Value = this.#stack.pop();
-                    if (typeof shift === "number" && typeof val === "number") this.#stack.push(val >> shift); 
-                }
+            case Opcode.BitRightShift: {
+                let shift: Value = this.#stack.pop();
+                let val: Value = this.#stack.pop();
+                if (typeof shift === "number" && typeof val === "number") this.#stack.push(val >> shift); 
                 break;
+            }
 
-            case Opcode.BitAnd:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 & val2); 
-                }
+            case Opcode.BitAnd: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 & val2); 
                 break;
+            }
 
-            case Opcode.BitOr:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 | val2); 
-                }
+            case Opcode.BitOr: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 | val2); 
                 break;
+            }
 
-            case Opcode.BitExclusiveOr:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 ^ val2); 
-                }
+            case Opcode.BitExclusiveOr: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 ^ val2); 
                 break;
+            }
 
-            case Opcode.BitNegate:
-                { 
-                    let val: Value = this.#stack.pop();
-                    if (typeof val === "number") this.#stack.push(~ val); 
-                }
+            case Opcode.BitNegate: { 
+                let val: Value = this.#stack.pop();
+                if (typeof val === "number") this.#stack.push(~ val); 
                 break;
+            }
 
-            case Opcode.Power:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(Math.pow(val1, val2));
-                }
+            case Opcode.Power: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(Math.pow(val1, val2));
                 break;
-                //#endregion
+            }
+            //#endregion
         
             // #region Value comparison
-            case Opcode.CompareEqual:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 == val2 ? 1 : 0);
-                }
+            case Opcode.CompareEqual: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 == val2 ? 1 : 0);
                 break;
+            }
 
-            case Opcode.CompareGreaterThan:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 > val2 ? 1 : 0);
-                }
+            case Opcode.CompareGreaterThan: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 > val2 ? 1 : 0);
                 break;
+            }
 
-            case Opcode.CompareLessThan:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 < val2 ? 1 : 0);
-                }
+            case Opcode.CompareLessThan: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 < val2 ? 1 : 0);
                 break;
+            }
 
-            case Opcode.CompareGreaterThanEqual:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 >= val2 ? 1 : 0);
-                }
+            case Opcode.CompareGreaterThanEqual: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 >= val2 ? 1 : 0);
                 break;
+            }
 
-            case Opcode.CompareLessThanEqual:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 <= val2 ? 1 : 0);
-                }
+            case Opcode.CompareLessThanEqual: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 <= val2 ? 1 : 0);
                 break;
+            }
 
-            case Opcode.CompareNotEqual:
-                {
-                    let val2: Value = this.#stack.pop();
-                    let val1: Value = this.#stack.pop();
-                    if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 != val2 ? 1 : 0);
-                }
+            case Opcode.CompareNotEqual: {
+                let val2: Value = this.#stack.pop();
+                let val1: Value = this.#stack.pop();
+                if (typeof val1 === "number" && typeof val2 === "number") this.#stack.push(val1 != val2 ? 1 : 0);
                 break;
+            }
 
-                //#endregion
+            // #endregion
 
             // #region Instruction pointer modification
             case Opcode.Jump:
@@ -587,11 +561,11 @@ class Interpreter {
                 this.#localVarStore.clear();
 
                 if (this.#callStack.length == 0) {
-                    this.#instructionPointer = - 1;
+                    this.#instructionPointer = -1;
                     this.#paused = true;
                     this.#sceneCompleted = true;
                 } else {
-                    let cs = this.#callStack.pop();
+                    let cs: {id: number, stack: Value[], variable: LocalVariableStore } = this.#callStack.pop();
                     this.#instructionPointer = cs.id;
                     this.#stack = cs.stack;
                     this.#localVarStore = cs.variable;
@@ -599,77 +573,82 @@ class Interpreter {
                 }
                 break;
 
-            case Opcode.Return:
+            case Opcode.Return: {
                 this.#localVarStore.clear();
-                var returnVal = this.#stack.pop();
-                var cs = this.#callStack.pop();
+
+                let returnVal: Value = this.#stack.pop();
+                let cs: { id: number, stack: Value[], variable: LocalVariableStore } = this.#callStack.pop();
+
                 this.#instructionPointer = cs.id;
                 this.#stack = cs.stack;
                 this.#localVarStore = cs.variable;
                 this.#stack.push(returnVal);
                 break;
+            }
 
-            case Opcode.Call:
-                {
-                    let val: Value[] = [];
-                    for (let i: number = 0; i < arg2; i++) {
-                        val[i] = this.#stack.pop();
-                    }
+            case Opcode.Call: {
+                let val: Value[] = [];
+                for (let i: number = 0; i < arg2; i++) {
+                    val[i] = this.#stack.pop();
+                }
             
-                    let temp = this.#callStack.splice(0);
-                    temp.push({
-                        id: this.#instructionPointer, stack: this.#stack, variable: this.#localVarStore 
-                    });
-                    this.#callStack = [];
-                    this.#stack = [];
-                    this.#localVarStore = new LocalVariableStore(this);
-                    let bytecodeIndexes = this.binary.functions[arg1].instructionIndices;
-                    for (let i: number = 1, flagIndex = 0; i < bytecodeIndexes.length; i += 2, flagIndex++) {
-                        this.#instructionPointer = bytecodeIndexes[i];
-                        this.#paused = false;
-                        while (!this.#paused) {
-                            this.update();
-                        }
-                        let value = this.#stack.pop();
+                let temp: Array<{ id: number, stack: Value[], variable: LocalVariableStore }> = this.#callStack.splice(0);
+                temp.push({
+                    id: this.#instructionPointer,
+                    stack: this.#stack, 
+                    variable: this.#localVarStore 
+                });
 
-                        this.#instructionPointer = bytecodeIndexes[i + 1];
-                        this.#paused = false;
-                        while (!this.#paused) {
-                            this.update();
-                        }
-                        let name = this.#stack.pop();
+                this.#callStack = [];
+                this.#stack = [];
+                this.#localVarStore = new LocalVariableStore(this);
+                let bytecodeIndexes: number[] = this.binary.functions[arg1].instructionIndices;
 
-                        if (typeof name === "string") {
-                            if (!this.flags[name]) {
-                                this.setFlag(name, value);
-                            }
-                            this.#localVarStore.flagMap[flagIndex] = name;
-                        }
-                    }
-
+                for (let i: number = 1, flagIndex = 0; i < bytecodeIndexes.length; i += 2, flagIndex++) {
+                    this.#instructionPointer = bytecodeIndexes[i];
                     this.#paused = false;
-                    this.#callStack = temp;
-                    this.#instructionPointer = bytecodeIndexes[0];
+                    while (!this.#paused) {
+                        this.update();
+                    }
+                    let value: Value = this.#stack.pop();
 
-                    for (let i: number = 0; i < arg2; i++) {
-                        this.#localVarStore.add(val[i]);
+                    this.#instructionPointer = bytecodeIndexes[i + 1];
+                    this.#paused = false;
+                    while (!this.#paused) {
+                        this.update();
+                    }
+                    let name: Value = this.#stack.pop();
+
+                    if (typeof name === "string") {
+                        if (!this.flags[name]) {
+                            this.setFlag(name, value);
+                        }
+                        this.#localVarStore.flagMap[flagIndex] = name;
                     }
                 }
-                break;
 
-            case Opcode.CallExternal:
-                {
-                    let name: string = this.binary.stringTable[arg1];
-                    let val: Value[] = [];
+                this.#paused = false;
+                this.#callStack = temp;
+                this.#instructionPointer = bytecodeIndexes[0];
+
+                for (let i: number = 0; i < arg2; i++) {
+                    this.#localVarStore.add(val[i]);
+                }
+                break;
+            }
+
+            case Opcode.CallExternal: {
+                let name: string = this.binary.stringTable[arg1];
+                let val: Value[] = [];
                 
-                    for (let i: number = 0; i < arg2; i++) {
-                        val[i] = this.#stack.pop();
-                    }
-
-                    this.#stack.push(this.functionHandler.invoke(name, val));
+                for (let i: number = 0; i < arg2; i++) {
+                    val[i] = this.#stack.pop();
                 }
+
+                this.#stack.push(this.functionHandler.invoke(name, val));
                 break;
-                // #endregion
+            }
+            // #endregion
 
             // #region Choice/Choose
             case Opcode.ChoiceBegin:
@@ -680,58 +659,57 @@ class Interpreter {
                 this.#inChoice = true;
                 break;
 
-            case Opcode.ChoiceAdd:
-                {
-                    if (!this.#inChoice) {
-                        throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
-                    }
+            case Opcode.ChoiceAdd: {
+                if (!this.#inChoice) {
+                    throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
+                }
 
-                    let chance = this.#stack.pop();
-                    let text = this.#stack.pop();
-                    //let rand = Math.random();
+                let chance: Value = this.#stack.pop();
+                let text: Value = this.#stack.pop();
 
-                    if (typeof chance === "number" && typeof text === "string") {
-                        if (this.chanceCallback(chance)) {
-                            this.choices[this.#instructionPointer + arg1] = text;
-                        }
+                if (typeof chance === "number" && typeof text === "string") {
+                    if (this.chanceCallback(chance)) {
+                        this.choices[this.#instructionPointer + arg1] = text;
                     }
                 }
                 break;
+            }
 
-            case Opcode.ChoiceAddTruthy:
-                {
-                    if (!this.#inChoice) {
-                        throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
-                    }
+            case Opcode.ChoiceAddTruthy: {
+                if (!this.#inChoice) {
+                    throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
+                }
 
-                    let chance = this.#stack.pop();
-                    let text = this.#stack.pop();
-                    let condition = this.#stack.pop();
-                    //let rand = Math.random();
+                let chance: Value = this.#stack.pop();
+                let text: Value = this.#stack.pop();
+                let condition: Value = this.#stack.pop();
 
-                    if (typeof chance === "number" && typeof text === "string") {
-                        if (condition && this.chanceCallback(chance)) {
-                            this.choices[this.#instructionPointer + arg1] = text;
-                        }
+                if (typeof chance === "number" && typeof text === "string") {
+                    if (condition && this.chanceCallback(chance)) {
+                        this.choices[this.#instructionPointer + arg1] = text;
                     }
                 }
                 break;
+            }
 
-            case Opcode.ChoiceSelect:
-                {
-                    if (!this.#inChoice)
-                        throw new InterpreterRuntimeException("Attempted to wait for user choice when no choice is being processed!");
-                    if (this.#choices.length == 0)
-                        throw new InterpreterRuntimeException("Attempted to wait for user choice when there's no choices to choose!");
-
-                    this.#selectChoice = true;
-                    this.#paused = true;
+            case Opcode.ChoiceSelect: {
+                if (!this.#inChoice) {
+                    throw new InterpreterRuntimeException("Attempted to wait for user choice when no choice is being processed!");
                 }
+
+                if (this.#choices.length == 0) {
+                    throw new InterpreterRuntimeException("Attempted to wait for user choice when there's no choices to choose!");
+                }
+
+                this.#selectChoice = true;
+                this.#paused = true;
                 break;
+            }
 
             case Opcode.ChooseAdd:
-            case Opcode.ChooseAddTruthy:
-                var chance = this.#stack.pop();
+            case Opcode.ChooseAddTruthy: {
+                let chance: Value = this.#stack.pop();
+
                 if (typeof chance === "number") {
                     if (opcode != Opcode.ChooseAddTruthy || this.#stack.pop()) {
                         this.#chooseOptions.push({
@@ -740,32 +718,32 @@ class Interpreter {
                     }
                 }
                 break;
+            }
 
-            case Opcode.ChooseSelect:
-                {
-                    let selection = this.weightedChanceCallback(this.#chooseOptions.map(t => t.value));
+            case Opcode.ChooseSelect: {
+                let selection: number = this.weightedChanceCallback(this.#chooseOptions.map(t => t.value));
 
-                    if (selection == - 1 || selection >= this.#chooseOptions.length) {
-                        throw new Error(`Selection returned by WeightedChanceCallback was out of bounds. Selection: ${selection}`);
-                    }
+                if (selection == -1 || selection >= this.#chooseOptions.length) {
+                    throw new Error(`Selection returned by WeightedChanceCallback was out of bounds. Selection: ${selection}`);
+                }
 
-                    this.#instructionPointer = this.#chooseOptions[selection].pointer;
-                    this.#chooseOptions = [];
+                this.#instructionPointer = this.#chooseOptions[selection].pointer;
+                this.#chooseOptions = [];
+                break;
+            }
+
+            case Opcode.TextRun: {
+                let text: Value = this.#stack.pop();
+
+                if (typeof text === "string") {
+                    this.#currentText = text;
+                    this.#runningText = true;
+                    this.#paused = true;
                 }
                 break;
-
-            case Opcode.TextRun:
-                {
-                    let text = this.#stack.pop();
-
-                    if (typeof text === "string") {
-                        this.#currentText = text;
-                        this.#runningText = true;
-                        this.#paused = true;
-                    }
-                }
-                break;
-            // #endregion
+            }
+            
+                // #endregion
         }
     }
 
@@ -783,7 +761,7 @@ class Interpreter {
 
         let value: string = (strRef ^ (1 << 31)) == 0 ? this.binary.stringTable[strRef & 0x7FFFFFFF] : this.binary.translationTable[strRef];
         
-        if (bytecodeIndex === - 1) return value;
+        if (bytecodeIndex === -1) return value;
         
         let iptemp: number = this.#instructionPointer;
         this.#instructionPointer = bytecodeIndex;
@@ -828,12 +806,12 @@ class Interpreter {
 
     lookupScene(sceneName: string): number {
         const id: number = this.lookupString(sceneName);
-        if (id === - 1) {
+        if (id === -1) {
             throw new InterpreterRuntimeException("Scene could not be found!");
         }
 
         const scene: number = this.binary.scenes.findIndex(s => s.symbol === id);
-        if (scene === - 1) {
+        if (scene === -1) {
             throw new InterpreterRuntimeException("Scene could not be found!");
         }
 
@@ -842,12 +820,12 @@ class Interpreter {
 
     lookupFunction(funcName: string): number {
         const id: number = this.lookupString(funcName);
-        if (id === - 1) {
+        if (id === -1) {
             throw new InterpreterRuntimeException("Function could not be found!");
         }
 
         const func: number = this.binary.functions.findIndex(s => s.symbol === id);
-        if (func === - 1) {
+        if (func === -1) {
             throw new InterpreterRuntimeException("Function could not be found!");
         }
 
@@ -856,7 +834,7 @@ class Interpreter {
 
     lookupDefinition(defName: string): Definition {
         const id: number = this.lookupString(defName);
-        if (id === - 1) {
+        if (id === -1) {
             throw new InterpreterRuntimeException("Definition could not be found!");
         }
 

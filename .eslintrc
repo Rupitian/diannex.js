@@ -51,7 +51,8 @@
             "overrides": {
                 "--": false,
                 "++": false,
-                "!": false
+                "!": false,
+                "-": false
             }
         }],
         "no-whitespace-before-property": ["warn"],
