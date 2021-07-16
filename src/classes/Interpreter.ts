@@ -886,7 +886,8 @@ class Interpreter {
         return this.binary.stringTable.findIndex(s => s === str);
     }
 
-    // #region DEBUG
+    // TODO: Implement preprocessor pragma directives.
+    // #if DEBUG
     disassemble(idx: number): string {
         return;
     }
@@ -898,7 +899,7 @@ class Interpreter {
     toAssembledName(op: Opcode): string {
         return;
     }
-    // #endregion
+    // #endif
 }
 
 /**

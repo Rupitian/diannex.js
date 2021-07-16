@@ -40,15 +40,13 @@ class Binary {
     
     /**
      * Reads DXB data from file.
-     * @param path Path to file
      */
-    static readFromFile = (path: string): Binary => {
-        return Binary.readFromBuffer(fs.readFileSync(path));
+    static readFromFile = (file: string): Binary => {
+        return Binary.readFromBuffer(fs.readFileSync(file));
     };
 
     /**
      * Reads DXB data from buffer.
-     * @param buf Buffer containing DXB data
      */
     static readFromBuffer = (buf: Buffer): Binary => {       
         const br: BinaryReader = new BinaryReader(buf);
@@ -57,14 +55,14 @@ class Binary {
         // Header
         const signature = br.readChars(3);
         if ("DNX" != signature) {
-            throw new Error("Invalid signature.");
+            throw new BinaryReaderException("Invalid signature.");
         }
 
         // Version
         const version: number = br.readUInt8();
 
         if (version != 3) {
-            throw new Error("Binary file not for this version of Diannex.");
+            throw new BinaryReaderException("Binary not for this version of Diannex.");
         }
 
         // Flags
@@ -188,6 +186,15 @@ class Binary {
 
         return bin;
     };
+}
+
+/**
+ * Thrown whenever an error occurs in processing of a Diannex binary.
+ */
+class BinaryReaderException extends Error {
+    constructor(...params) {
+        super(...params);
+    }
 }
 
 export default Binary;

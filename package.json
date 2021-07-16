@@ -2,18 +2,17 @@
     "name": "diannex.js",
     "version": "1.0.0",
     "description": "",
-    "main": "./dist/diannex.ts",
+    "main": "./index.ts",
     "scripts": {
         "build": "npm-run-all --parallel build:*",
-        "build:tests": "esbuild ./src/tests/index.ts --bundle --outdir=./dist/tests --platform=node --allow-overwrite",
         "build:core-cjs": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.js --platform=node --format=cjs --allow-overwrite",
-        "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --format=esm --allow-overwrite",
-        "test": "npx jest"
+        "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --platform=node --format=esm --allow-overwrite",
+        "test": "npx jest --watch"
     },
     "exports": {
         ".": {
-            "node": "./dist/diannex.js",
-            "require": "./dist/diannex.js",
+            "node": "./index.ts",
+            "require": "./index.ts",
             "browser": "./dist/diannex.mjs",
             "import": "./dist/diannex.mjs",
             "default": "./dist/diannex.mjs"
@@ -30,12 +29,12 @@
         "pako": "^2.0.3"
     },
     "devDependencies": {
-        "eslint": "^7.27.0",
+        "@types/jest": "^26.0.24",
+        "@types/node": "^16.0.0",
+        "@types/pako": "^1.0.1",
         "@typescript-eslint/eslint-plugin": "^4.25.0",
         "@typescript-eslint/parser": "^4.25.0",
-        "@types/jest": "^26.0.24",
-        "@types/pako": "^1.0.1",
-        "@types/node": "^16.0.0",
+        "eslint": "^7.27.0",
         "eslint-plugin-jest": "^24.3.6",
         "jest": "^27.0.6",
         "ts-jest": "^27.0.3",

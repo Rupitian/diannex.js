@@ -1,6 +1,17 @@
-import {
-    Binary, FunctionHandler 
-} from "../index";
+import * as path from "path";
 
-const bin: Binary = new Binary();
-const funcHandler: FunctionHandler = new FunctionHandler();
+import { Binary } from "../";
+
+describe("Binary", () => {
+    test("reads and processes v2 binary file correctly", () => {
+        expect(() => {
+            Binary.readFromFile(path.resolve(__dirname, "./files/general-v2.dxb"));
+        }).toThrowError("Binary not for this version of Diannex.");
+    });
+
+    test("reads and processes v3 binary file correctly", () => {
+        const bin: Binary = Binary.readFromFile(path.resolve(__dirname, "./files/general-v3.dxb"));
+
+        expect(bin).toMatchSnapshot();
+    });
+});
