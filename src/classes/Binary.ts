@@ -74,8 +74,6 @@ class Binary {
             compressed: !!(flagData & 1),
             internalTranslationFile: !!((flagData >> 1) & 1)
         };
-
-        console.log(`Binary:\nSignature: ${signature}\nVersion: ${version}\nCompressed?: ${flags.compressed}\nInternal Translation File?: ${flags.internalTranslationFile}`);
         
         bin.translationLoaded = flags.internalTranslationFile;
 
@@ -157,8 +155,6 @@ class Binary {
         {
             const size: number = bfr.readUInt32();
 
-            console.log(`Internal string count: ${size}`);
-
             for (let i = 0; i < size; i++) {
                 bin.stringTable.push(bfr.readString());
             }
@@ -167,7 +163,6 @@ class Binary {
         // Internal translation file
         if (flags.internalTranslationFile) {
             const size: number = bfr.readUInt32();
-            console.log(`Translation string count: ${size}`);
 
             for (let i = 0; i < size; i++) {
                 bin.translationTable.push(bfr.readString());
@@ -177,7 +172,6 @@ class Binary {
         // External function list
         {
             const size: number = bfr.readUInt32();
-            console.log(`External function count: ${size}`);
 
             for (let i = 0; i < size; i++) {
                 bin.externalFunctionList.push(bfr.readUInt32());
