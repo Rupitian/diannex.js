@@ -938,6 +938,12 @@ class Interpreter {
         return str;
     }
 
+    /**
+     * 
+     * 
+     * @param sceneName 
+     * @return 
+     */
     lookupScene(sceneName: string): number {
         const id: number = this.lookupString(sceneName);
         if (id === -1) {
@@ -952,6 +958,12 @@ class Interpreter {
         return scene;
     }
 
+    /**
+     * 
+     * 
+     * @param funcName
+     * @return 
+     */
     lookupFunction(funcName: string): number {
         const id: number = this.lookupString(funcName);
         if (id === -1) {
@@ -966,6 +978,12 @@ class Interpreter {
         return func;
     }
 
+    /**
+     * 
+     * 
+     * @param defName
+     * @return
+     */
     lookupDefinition(defName: string): Definition {
         const id: number = this.lookupString(defName);
         if (id === -1) {
@@ -980,6 +998,12 @@ class Interpreter {
         return def;
     }
 
+    /**
+     * 
+     * 
+     * @param str
+     * @return 
+     */
     lookupString(str: string): number {
         return this.binary.stringTable.findIndex(s => s === str);
     }

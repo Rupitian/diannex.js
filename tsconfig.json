@@ -10,7 +10,7 @@
 		],
 		"noImplicitAny": false,
 		"allowJs": true,
-		"checkJs": true,
+		"checkJs": false,
 		"noEmit": true,
 		"moduleResolution": "Node",
 		"target": "ES2020",
