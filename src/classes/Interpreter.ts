@@ -7,53 +7,81 @@ import Binary from "./Binary";
 import FunctionHandler from "./FunctionHandler";
 import LocalVariableStore from "./LocalVariableStore";
 
+/**
+ * A method used to randomly decide if a Choice/Choose option will be displayed.
+ *
+ * @param {number} chance The normalized chance of being displayed.By default it's 1 if no chances were declared.
+ * @return {boolean} Whether or not the Choice/Choose option should be displayed.
+ */
 type ChanceHandler = (chance: number) => boolean;
+/**
+ * A method used to randomly pick a Choose option.
+ *
+ * @param {number[]} weights A list of normalized weights for each Choose option.By default a weight is 1 if no weight was specified for that specific Choose option.
+ * @return {number} Which Choose option to select.
+ */
 type WeightedChanceHandler = (chance: number[]) => number;
 
 class Interpreter {
+    /**
+     * See {@link Binary}.
+     */
     binary: Binary;
+    /**
+     * See {@link FunctionHandler}.
+     */
     functionHandler: FunctionHandler;
+    /**
+     * A map of variables that persists between scopes.
+     */
     globalVariableStore: Record<string, Value>;
+    /**
+     * A map of global flags that persists between execution of the same scope.
+     */
     flags: Record<string, Value>;
 
+    /**
+     * See {@link ChanceHandler}.
+     */
     chanceCallback: ChanceHandler;
+    /**
+     * See {@link WeightedChanceHandler}.
+     */
     weightedChanceCallback: WeightedChanceHandler;
     
-    #inChoice: boolean;
-    get inChoice(): boolean {
-        return this.#inChoice;
-    }
+    /**
+     * True whenever the Interpreter is processing Choices.
+     */
+    inChoice: boolean;
+    /**
+     * True whenever the Interpreter is waiting for the User to select a Choice.
+     * @see {@link Interpreter.chooseChoice}
+     */
+    selectChoice: boolean;
+    /**
+     * True whenever the Interpreter is waiting for the User to finish displaying {@link Interpreter.currentText}.
+     */
+    runningText: boolean;
+    /**
+     * True whenever the Interpreter is waiting for any reason, or if {@link Interpreter.sceneCompleted} is true.
+     */
+    paused: boolean;
+    /**
+     * True whenever the Interpreter is done executing the {@link Interpreter.currentScene}.
+     */
+    sceneCompleted: boolean;
+    /**
+     * The name of the currently running scene as set by {@link Interpreter.runScene}.
+     */
+    currentScene: string;
+    /**
+     * The line of dialogue to be displayed.
+     */
+    currentText: string;
 
-    #selectChoice: boolean;
-    get selectChoice(): boolean {
-        return this.#selectChoice;
-    }
-
-    #runningText: boolean;
-    get runningText(): boolean {
-        return this.#runningText;
-    }
-
-    #paused: boolean;
-    get paused(): boolean {
-        return this.#paused;
-    }
-
-    #sceneCompleted: boolean;
-    get sceneCompleted(): boolean {
-        return this.#sceneCompleted;
-    }
-
-    #currentScene: string;
-    get currentScene(): string {
-        return this.#currentScene;
-    }
-
-    #currentText: string;
-    get currentText(): string {
-        return this.#currentText;
-    }
-
+    /**
+     * A list of choices to display to the user to pick from.
+     */
     get choices(): string[] {
         return this.#choices.map((choice) => {
             return choice.text;
@@ -79,13 +107,21 @@ class Interpreter {
     }>;
     #definitions: Record<string, string>;
 
+    /**
+     * The Interpreter for the Diannex bytecode.
+     *
+     * @param binary The specific Diannex {@link Binary} to interpret.
+     * @param functionHandler Used for executing external methods in Diannex code.
+     * @param chanceCallback See .
+     * @param weightedChanceCallback See .
+     */
     constructor(binary: Binary, functionHandler: FunctionHandler, chanceCallback?: ChanceHandler, weightedChanceCallback?: WeightedChanceHandler) {
         this.binary = binary;
         this.globalVariableStore = {};
         this.flags = {};
-        this.#inChoice = false;
-        this.#selectChoice = false;
-        this.#runningText = false;
+        this.inChoice = false;
+        this.selectChoice = false;
+        this.runningText = false;
 
         if (chanceCallback === undefined) {
             this.chanceCallback = (d: number): boolean => d == 1 || Math.random() < d;
@@ -123,12 +159,12 @@ class Interpreter {
             this.weightedChanceCallback = weightedChanceCallback;
         }
 
-        this.#currentScene = null;
-        this.#sceneCompleted = false;
-        this.#currentText = null;
+        this.currentScene = null;
+        this.sceneCompleted = false;
+        this.currentText = null;
 
         this.#instructionPointer = 0;
-        this.#paused = true;
+        this.paused = true;
         this.#stack = [];
         this.#saveRegister = null;
         this.#localVarStore = new LocalVariableStore(this);
@@ -146,14 +182,39 @@ class Interpreter {
         }
     }
 
+    /**
+     * Gets a flag from the Diannex Context.
+     * 
+     * NOTE: The Scene/Method where the flag is defined **MUST BE EXECUTED FIRST** before the flag will populate.
+     *
+     * @param flag The flag to get.
+     * @return The flag as a {@link Value}.
+     */
     getFlag(flag: string): Value {
         return this.flags[flag];
     }
 
+    /**
+     * Sets a flag from the Diannex Context.
+     * 
+     * If a flag is set before it is defined (see remark on {@link Interpreter.getFlag}), then the value will be treated as the default.
+     * 
+     * WARNING: The value **MUST BE OF THE SAME TYPE** as it is defined the code, otherwise undefined behaviour may occur.
+     *
+     * @param flag The flag to set.
+     * @param value The {@link Value} to set the flag to.
+     */
     setFlag(flag: string, value: Value): void {
         this.flags[flag] = value;
     }
 
+    /**
+     * Loads a translation file that's generated by the Diannex compiler.
+     * 
+     * NOTE: Loading a translation file will reload all the Definitions.
+     *
+     * @param path The path to the translation file.
+     */
     loadTranslationFile(path: string): void {
         const fileContents: string[] = fs.readFileSync(path).toString().split("\n");
 
@@ -174,6 +235,13 @@ class Interpreter {
         }
     }
 
+    /**
+     * Begins execution of a scene from the Diannex code.
+     * 
+     * NOTE: If the scene has flags, this is where they'll be populated.
+     *
+     * @param sceneName The symbol name of the scene to run (e.g. "test.scene0")
+     */
     runScene(sceneName: string): void {
         if (!this.binary.translationLoaded && this.binary.translationTable.length == 0) {
             console.log("[WARNING]: Currently no translations have been loaded! The program will crash when trying to run dialogue!");
@@ -188,18 +256,18 @@ class Interpreter {
 
         for (let i: number = 1, flagIndex = 0; i < bytecodeIndexes.length; flagIndex++) {
             this.#instructionPointer = bytecodeIndexes[i++];
-            this.#paused = false;
+            this.paused = false;
             
-            while (!this.#paused) {
+            while (!this.paused) {
                 this.update();
             }
 
             let value = this.#stack.pop();
 
             this.#instructionPointer = bytecodeIndexes[i++];
-            this.#paused = false;
+            this.paused = false;
 
-            while (!this.#paused) {
+            while (!this.paused) {
                 this.update();
             }
 
@@ -212,11 +280,18 @@ class Interpreter {
             this.#localVarStore.flagMap[flagIndex] = name;
         }
 
-        this.#paused = false;
+        this.paused = false;
         this.#instructionPointer = bytecodeIndexes[0];
-        this.#currentScene = sceneName;
+        this.currentScene = sceneName;
     }
 
+    /**
+     * If  is true, this will select the choice and resume the Interpreter.
+     * 
+     * WARNING: If this runs before {@link Interpreter.selectChoice} is true, it will throw an exception!
+     *
+     * @param idx The 0 based index of choice, relative to {@link Interpreter.selectChoice}.
+     */
     chooseChoice(idx: number): void {
         if (idx >= this.#choices.length) {
             throw new Error(`Choice at index ${idx} is outside of the range of choices.`);
@@ -224,19 +299,29 @@ class Interpreter {
 
         let ip = this.#choices[idx].address;
         this.#instructionPointer = ip;
-        this.#selectChoice = false;
-        this.#paused = false;
+        this.selectChoice = false;
+        this.paused = false;
     }
 
+    /**
+     * Resumes the interpreter if {@link Interpreter.paused} is true.
+     */
     resume(): void {
-        if (this.#runningText) this.#runningText = false;
-        if (this.#currentScene === null || !this.#paused) return;
+        if (this.runningText) this.runningText = false;
+        if (this.currentScene === null || !this.paused) return;
 
-        if (!this.#selectChoice) this.#paused = false;
+        if (!this.selectChoice) this.paused = false;
     }
 
+    /**
+     * Steps through the Bytecode instruction by instruction.
+     * 
+     * NOTE: If {@link Interpreter.paused} is true, this method will do nothing,
+     * so you don't need to check if the Interpreter is paused before running
+     * the method.
+     */
     update(): void {
-        if (this.#paused) return;
+        if (this.paused) return;
 
         let opcode: Opcode = this.binary.instructions[this.#instructionPointer++];
         let arg1: number = 0;
@@ -562,8 +647,8 @@ class Interpreter {
 
                 if (this.#callStack.length == 0) {
                     this.#instructionPointer = -1;
-                    this.#paused = true;
-                    this.#sceneCompleted = true;
+                    this.paused = true;
+                    this.sceneCompleted = true;
                 } else {
                     let cs: {id: number, stack: Value[], variable: LocalVariableStore } = this.#callStack.pop();
                     this.#instructionPointer = cs.id;
@@ -606,15 +691,15 @@ class Interpreter {
 
                 for (let i: number = 1, flagIndex = 0; i < bytecodeIndexes.length; i += 2, flagIndex++) {
                     this.#instructionPointer = bytecodeIndexes[i];
-                    this.#paused = false;
-                    while (!this.#paused) {
+                    this.paused = false;
+                    while (!this.paused) {
                         this.update();
                     }
                     let value: Value = this.#stack.pop();
 
                     this.#instructionPointer = bytecodeIndexes[i + 1];
-                    this.#paused = false;
-                    while (!this.#paused) {
+                    this.paused = false;
+                    while (!this.paused) {
                         this.update();
                     }
                     let name: Value = this.#stack.pop();
@@ -627,7 +712,7 @@ class Interpreter {
                     }
                 }
 
-                this.#paused = false;
+                this.paused = false;
                 this.#callStack = temp;
                 this.#instructionPointer = bytecodeIndexes[0];
 
@@ -652,15 +737,15 @@ class Interpreter {
 
             // #region Choice/Choose
             case Opcode.ChoiceBegin:
-                if (this.#inChoice) {
+                if (this.inChoice) {
                     throw new InterpreterRuntimeException("Choice begins while another choice is being processed!");
                 }
 
-                this.#inChoice = true;
+                this.inChoice = true;
                 break;
 
             case Opcode.ChoiceAdd: {
-                if (!this.#inChoice) {
+                if (!this.inChoice) {
                     throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
                 }
 
@@ -676,7 +761,7 @@ class Interpreter {
             }
 
             case Opcode.ChoiceAddTruthy: {
-                if (!this.#inChoice) {
+                if (!this.inChoice) {
                     throw new InterpreterRuntimeException("Attempted to add a choice when no choice is being processed!");
                 }
 
@@ -693,7 +778,7 @@ class Interpreter {
             }
 
             case Opcode.ChoiceSelect: {
-                if (!this.#inChoice) {
+                if (!this.inChoice) {
                     throw new InterpreterRuntimeException("Attempted to wait for user choice when no choice is being processed!");
                 }
 
@@ -701,8 +786,8 @@ class Interpreter {
                     throw new InterpreterRuntimeException("Attempted to wait for user choice when there's no choices to choose!");
                 }
 
-                this.#selectChoice = true;
-                this.#paused = true;
+                this.selectChoice = true;
+                this.paused = true;
                 break;
             }
 
@@ -736,9 +821,9 @@ class Interpreter {
                 let text: Value = this.#stack.pop();
 
                 if (typeof text === "string") {
-                    this.#currentText = text;
-                    this.#runningText = true;
-                    this.#paused = true;
+                    this.currentText = text;
+                    this.runningText = true;
+                    this.paused = true;
                 }
                 break;
             }
@@ -747,6 +832,19 @@ class Interpreter {
         }
     }
 
+    /**
+     * Retrieves a definition from the Diannex code.
+     * 
+     * NOTE: Definitions are loaded when the Interpreter is constructed if the binary
+     * was created with no private/public translation files.
+     * 
+     * Otherwise, they will be loaded whenever the {@link Interpreter.loadTranslationFile} method is called.
+     * 
+     * **THIS MEANS INTERPOLATED STRINGS IN DEFINITIONS WON'T CHANGE UNTIL THEY'RE LOADED AGAIN.**
+     *
+     * @param defname The symbol name of the definition (e.g. "definitions.main")
+     * @return The value of the definition, which will always be a string.
+     */
     getDefinition(def: string|Definition): string {
         if (typeof def === "string") {
             if (this.#definitions[def]) {
@@ -765,9 +863,9 @@ class Interpreter {
         
         let iptemp: number = this.#instructionPointer;
         this.#instructionPointer = bytecodeIndex;
-        this.#paused = false;
+        this.paused = false;
         
-        while (!this.#paused) {
+        while (!this.paused) {
             this.update();
         }
 
@@ -888,22 +986,22 @@ class Interpreter {
 
     // TODO: Implement preprocessor pragma directives.
     // #if DEBUG
-    disassemble(idx: number): string {
-        return;
+    /*disassemble(idx: number): string {
+        
     }
 
     disassembleToFile(path: string): void {
-        return;
+        
     }
 
     toAssembledName(op: Opcode): string {
-        return;
-    }
+        
+    }*/
     // #endif
 }
 
 /**
- * Thrown whenever an error occurs during Interpreter execution.
+ * Thrown whenever an error occurs during {@link Interpreter} execution.
  */
 class InterpreterRuntimeException extends Error {
     constructor(...params) {

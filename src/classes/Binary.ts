@@ -8,10 +8,24 @@ import Definition from "types/Definition";
  * Representation of the binary.
  */
 class Binary {
+    /**
+     * True if either an internal translation file is loaded, or when an external translation file is loaded.
+     * NOTE: If you try to execute code with dialogue when this is false you *WILL* crash.
+     */
     translationLoaded: boolean;
+    /**
+     * A list of internal strings used in the Diannex code, e.g. function/scene names.
+     * [ID]: string
+     */
     stringTable: string[];
+    /**
+     * A list of dialogue and other translatable strings that's displayed to the user.
+     */
     translationTable: string[];
 
+    /**
+     * A buffer of the instructions to be read at runtime.
+     */
     instructions: Buffer;
     externalFunctionList: number[];
 
@@ -23,7 +37,7 @@ class Binary {
         symbol: number,
         instructionIndices: number[]
     }>;
-    definitions: Array<Definition>;
+    definitions: Definition[];
 
     constructor() {
         this.translationLoaded = false;
@@ -40,6 +54,7 @@ class Binary {
     
     /**
      * Reads DXB data from file.
+     * @param file The DXB file to read from.
      */
     static readFromFile = (file: string): Binary => {
         return Binary.readFromBuffer(fs.readFileSync(file));
@@ -47,6 +62,7 @@ class Binary {
 
     /**
      * Reads DXB data from buffer.
+     * @param buf A buffer in the DXB format to read from.
      */
     static readFromBuffer = (buf: Buffer): Binary => {       
         const br: BinaryReader = new BinaryReader(buf);
