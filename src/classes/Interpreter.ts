@@ -875,7 +875,13 @@ class Interpreter {
         return ret;
     }
 
-    constructArray(elementCount: number): Value {
+    /**
+     * Moves an amount of values from the stack to a new array.
+     * 
+     * @param elementCount The amount of elements to move.
+     * @returns The array of values that were moved.
+     */
+    constructArray(elementCount: number): Value[] {
         const values: Value[] = [];
 
         for (let i: number = 0; i < elementCount; i++) {
@@ -885,6 +891,13 @@ class Interpreter {
         return values;
     }
 
+    /**
+     * Replaces ${symbol} in a string with the value of the given symbol unless escaped with \.
+     * 
+     * @param format The string to be interpolated.
+     * @param exprCount The amount of expressions that will be passed to the format string.
+     * @returns The interpolated string.
+     */
     interpolate(format: string, exprCount: number): string {
         // Read all values
         const values: Value[] = [];
@@ -939,10 +952,10 @@ class Interpreter {
     }
 
     /**
+     * Finds a scene ID by name.
      * 
-     * 
-     * @param sceneName 
-     * @return 
+     * @param sceneName The scene name.
+     * @return The ID of the scene.
      */
     lookupScene(sceneName: string): number {
         const id: number = this.lookupString(sceneName);
@@ -959,10 +972,10 @@ class Interpreter {
     }
 
     /**
+     * Finds a function ID by name.
      * 
-     * 
-     * @param funcName
-     * @return 
+     * @param funcName The function name.
+     * @return The ID of the function.
      */
     lookupFunction(funcName: string): number {
         const id: number = this.lookupString(funcName);
@@ -979,10 +992,10 @@ class Interpreter {
     }
 
     /**
+     * Finds a definition ID by name.
      * 
-     * 
-     * @param defName
-     * @return
+     * @param defName The definition name.
+     * @return The ID of the definition.
      */
     lookupDefinition(defName: string): Definition {
         const id: number = this.lookupString(defName);
@@ -999,10 +1012,10 @@ class Interpreter {
     }
 
     /**
+     * Finds the ID of a string.
      * 
-     * 
-     * @param str
-     * @return 
+     * @param str The string to find.
+     * @return The ID of the scene.
      */
     lookupString(str: string): number {
         return this.binary.stringTable.findIndex(s => s === str);
