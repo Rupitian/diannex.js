@@ -1,11 +1,14 @@
-import Binary from "classes/Binary";
-import FunctionHandler from "classes/FunctionHandler";
-import Interpreter from "classes/Interpreter";
-import Opcode from "enums/Opcode";
+// Classes
+export { default as Binary } from "classes/Binary";
+export { default as FunctionHandler } from "classes/FunctionHandler";
+export { default as Interpreter } from "classes/Interpreter";
+export { default as BinaryReader } from "classes/BinaryReader";
+export { default as LocalVariableStore } from "classes/LocalVariableStore";
 
+// Enums
+export { default as Opcode } from "enums/Opcode";
+
+// Types
 export {
-    Binary,
-    FunctionHandler,
-    Interpreter,
-    Opcode
-};
+    Definition, Value, ChanceHandler, WeightedChanceHandler, DiannexFunc 
+} from "types";

@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as zlib from "zlib";
 
 import BinaryReader from "classes/BinaryReader";
-import Definition from "types/Definition";
+import { Definition } from "types";
 
 /**
  * Representation of the binary.

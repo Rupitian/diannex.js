@@ -1,4 +1,4 @@
-import Value from "types/Value";
+import { Value } from "types";
 import Interpreter from "./Interpreter";
 
 class LocalVariableStore {
@@ -18,7 +18,7 @@ class LocalVariableStore {
         this.variables[this.count] = value;
     }
 
-    get(index: number) {
+    get(index: number): Value {
         if (this.flagMap[index]) {
             return this.#interpreter.getFlag(this.flagMap[index]);
         }
@@ -26,7 +26,7 @@ class LocalVariableStore {
         return this.variables[index];
     }
 
-    set(index: number, value: Value) {
+    set(index: number, value: Value): void {
         if (this.flagMap[index]) {
             this.#interpreter.setFlag(this.flagMap[index], value);
         } else {
@@ -34,7 +34,7 @@ class LocalVariableStore {
         }
     }
 
-    delete(index: number) {
+    delete(index: number): void {
         if (index < Object.keys(this.flagMap).length) {
             delete this.flagMap[index];
         } else if (this.variables[index]) {

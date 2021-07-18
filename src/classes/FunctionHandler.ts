@@ -1,6 +1,6 @@
-import Value from "types/Value";
-
-type DiannexFunc = (args: Value[]) => Value;
+import {
+    DiannexFunc, Value 
+} from "types";
 
 class FunctionHandler {
     #funcs: Record<string, DiannexFunc>;

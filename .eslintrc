@@ -75,7 +75,7 @@
         }],
         "padding-line-between-statements": [
             "warn",
-            { "blankLine": "always", "prev": "*", "next": ["export", "function"] },
+            { "blankLine": "always", "prev": ["import", "block-like"], "next": ["export", "function"] },
             { "blankLine": "always", "prev": "var", "next": "return" }
         ],
         "padded-blocks": ["warn", "never"],

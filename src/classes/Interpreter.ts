@@ -1,27 +1,16 @@
 import * as fs from "fs";
 
 import Opcode from "enums/Opcode";
-import Definition from "types/Definition";
-import Value from "types/Value";
 import Binary from "./Binary";
 import FunctionHandler from "./FunctionHandler";
 import LocalVariableStore from "./LocalVariableStore";
+import {
+    Value, Definition, ChanceHandler, WeightedChanceHandler 
+} from "types";
 
 /**
- * A method used to randomly decide if a Choice/Choose option will be displayed.
- *
- * @param {number} chance The normalized chance of being displayed.By default it's 1 if no chances were declared.
- * @return {boolean} Whether or not the Choice/Choose option should be displayed.
+ * The Interpreter for the Diannex bytecode.
  */
-type ChanceHandler = (chance: number) => boolean;
-/**
- * A method used to randomly pick a Choose option.
- *
- * @param {number[]} weights A list of normalized weights for each Choose option.By default a weight is 1 if no weight was specified for that specific Choose option.
- * @return {number} Which Choose option to select.
- */
-type WeightedChanceHandler = (chance: number[]) => number;
-
 class Interpreter {
     /**
      * See {@link Binary}.
@@ -112,8 +101,8 @@ class Interpreter {
      *
      * @param binary The specific Diannex {@link Binary} to interpret.
      * @param functionHandler Used for executing external methods in Diannex code.
-     * @param chanceCallback See .
-     * @param weightedChanceCallback See .
+     * @param chanceCallback See {@link ChanceHandler}.
+     * @param weightedChanceCallback See {@link WeightedChanceHandler}.
      */
     constructor(binary: Binary, functionHandler: FunctionHandler, chanceCallback?: ChanceHandler, weightedChanceCallback?: WeightedChanceHandler) {
         this.binary = binary;
@@ -1010,7 +999,7 @@ class Interpreter {
 
         return def;
     }
-
+    
     /**
      * Finds the ID of a string.
      * 
