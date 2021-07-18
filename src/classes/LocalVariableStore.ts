@@ -1,8 +1,12 @@
 import { Value } from "types";
 import Interpreter from "./Interpreter";
 
+// TODO: Ask Shad about potential issues with count. What happens if a value is deleted? Potential bug.
+
 /**
  * Handles Diannex variables.
+ * 
+ * @private
  */
 class LocalVariableStore {
     variables: Record<number, Value>;

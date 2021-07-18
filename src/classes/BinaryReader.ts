@@ -1,5 +1,7 @@
 /**
  * Simple binary buffer reader.
+ * 
+ * @private
  */
 class BinaryReader {
     buf: Buffer;

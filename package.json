@@ -4,12 +4,11 @@
     "description": "",
     "main": "./index.ts",
     "scripts": {
-        "build": "npm-run-all --parallel build:*",
-        "build:core-cjs": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.js --platform=node --format=cjs --allow-overwrite",
         "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --platform=node --format=esm --allow-overwrite",
+        "build:diannex": "cmake ./tests/diannex && make ./tests/diannex && ./tests/diannex/build/diannex.exe --project ../files/main.json",
         "test": "npx jest --watch",
-        "docs:watch": "npm run docs -- --watch",
-        "docs": "typedoc --out docs/ --json docs/docs.json ./index.ts"
+        "docs": "typedoc --out docs/ --json docs/docs.json ./index.ts",
+        "docs:watch": "npm run docs -- --watch"
     },
     "exports": {
         ".": {

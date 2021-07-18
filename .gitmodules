@@ -1,0 +1,3 @@
+[submodule "tests/diannex"]
+	path = tests/diannex
+	url = https://github.com/Rupitian/diannex.git
