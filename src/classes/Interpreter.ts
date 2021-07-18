@@ -164,7 +164,8 @@ class Interpreter {
         this.#definitions = {};
 
         if (binary.translationLoaded) {
-            for (const def of binary.definitions) {
+            for (let i: number = 0; i < binary.definitions.length; i++) {
+                const def: Definition = binary.definitions[i];
                 const val: string = this.getDefinition(def);
                 this.#definitions[binary.stringTable[def.symbol]] = val;
             }
@@ -209,7 +210,8 @@ class Interpreter {
 
         this.binary.translationTable = [];
 
-        for (const s of fileContents) {
+        for (let i: number = 0; i < fileContents.length; i++) {
+            const s: string = fileContents[i];
             if (!s.startsWith("#") && !s.startsWith("@") && s.trim() != "") {
                 this.binary.translationTable.push(s);
             }
@@ -217,7 +219,8 @@ class Interpreter {
 
         this.binary.translationLoaded = true;
 
-        for (const def of this.binary.definitions) {
+        for (let i: number = 0; i < this.binary.definitions.length; i++) {
+            const def: Definition = this.binary.definitions[i];
             const name: string = this.binary.stringTable[def.symbol];
             const val: string = this.getDefinition(def);
             this.#definitions[name] = val;
