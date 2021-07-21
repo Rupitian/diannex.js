@@ -1,3 +1,8 @@
+# General
 node_modules/
 dist/
 docs/
+
+# Tests
+tests/downloads/
+tests/diannex/

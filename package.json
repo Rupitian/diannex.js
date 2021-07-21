@@ -5,10 +5,11 @@
     "main": "./index.ts",
     "scripts": {
         "build:core-esm": "esbuild ./index.ts --bundle --minify --outfile=./dist/diannex.mjs --platform=node --format=esm --allow-overwrite",
-        "build:diannex": "cmake ./tests/diannex && make ./tests/diannex && ./tests/diannex/build/diannex.exe --project ../files/main.json",
         "test": "npx jest --watch",
         "docs": "typedoc --out docs/ --json docs/docs.json ./index.ts",
-        "docs:watch": "npm run docs -- --watch"
+        "docs:watch": "npm run docs -- --watch",
+        "diannex:setup": "node ./tests/index.js --download",
+        "diannex:build-files": "node ./tests/index.js --build"
     },
     "exports": {
         ".": {
@@ -27,7 +28,8 @@
     "dependencies": {
         "esbuild": "^0.12.9",
         "npm-run-all": "^4.1.5",
-        "pako": "^2.0.3"
+        "pako": "^2.0.3",
+        "unzipper": "^0.10.11"
     },
     "devDependencies": {
         "@types/jest": "^26.0.24",
