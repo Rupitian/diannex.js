@@ -24,6 +24,8 @@ class LocalVariableStore {
      */
     constructor(interpreter: Interpreter) {
         this.#interpreter = interpreter;
+        this.variables = {};
+        this.flagMap = {};
     }
 
     /**

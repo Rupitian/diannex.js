@@ -28,6 +28,8 @@
 			}
 		],
         "@typescript-eslint/no-unused-vars": ["warn"],
+        
+        "jest/expect-expect": "off",
 
         "no-unused-vars": "off",
         "no-multiple-empty-lines": [

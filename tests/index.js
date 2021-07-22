@@ -14,18 +14,18 @@ const buildFiles = () => {
     for (let i = 0; i < paths.length; i++) {   
         const file = paths[i];
 
-        if (!file.endsWith(".dx")) return;
+        if (!file.endsWith(".dx")) continue;
 
         exec(`"tests/diannex/diannex.exe" --cli --files=./tests/files/${file} --binary ./tests/files/out --name ${path.basename(file, path.extname(file))}`, (err, stdout, stderr) => {
-            console.log(stdout);
-            console.error(stderr);
+            if (stdout !== "") console.log(stdout);
+            if (stderr !== "") console.error(stderr);
             
             if (err) {
                 console.error(err);
                 return;
             }
 
-            console.log(`Test file "./tests/files/${file}" built.`);
+            console.log(`Test file "./tests/files/${file}" built.\n\n`);
         });
     }
 };
@@ -38,8 +38,8 @@ const downloadDiannex = () => {
 
     // Download Diannex release to tests/downloads/diannex.zip
     exec("curl -L https://github.com/Rupitian/diannex/releases/download/v1.3/diannex-1.3-win64.zip > ./tests/downloads/diannex.zip", (err, stdout, stderr) => {
-        console.log(stdout);
-        console.error(stderr);
+        if (stdout !== "") console.log(stdout);
+        if (stderr !== "") console.error(stderr);
         
         if (err) {
             console.error(err);

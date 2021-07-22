@@ -1,0 +1,9 @@
+scene intro {
+    "Line 1"
+    choose
+    {
+        "Line 2a"
+        "Line 2b"
+    }
+    "Line 3"
+}

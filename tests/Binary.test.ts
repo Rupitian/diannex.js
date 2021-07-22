@@ -10,7 +10,7 @@ describe("Binary", () => {
     });
 
     test("reads and processes v3 binary file correctly", () => {
-        const bin: Binary = Binary.readFromFile(path.resolve(__dirname, "./files/out/general-v3.dxb"));
+        const bin: Binary = Binary.readFromFile(path.resolve(__dirname, "./files/out/sample.dxb"));
 
         expect(bin).toMatchSnapshot();
     });

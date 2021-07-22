@@ -1,0 +1,6 @@
+scene intro
+{
+  char0: "Line 1"
+  "Line 2"
+  char1: "Line 3"
+}

@@ -1,0 +1,7 @@
+scene intro
+{
+  "Line 1"
+  repeat (3)
+    "Repeat"
+  "Line 2"
+}

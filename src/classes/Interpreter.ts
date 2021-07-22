@@ -275,6 +275,18 @@ class Interpreter {
         this.paused = false;
         this.#instructionPointer = bytecodeIndexes[0];
         this.currentScene = sceneName;
+
+        this.inChoice = false;
+        this.selectChoice = false;
+        this.runningText = false;
+        this.sceneCompleted = false;
+        this.currentText = null;
+        
+        this.#choices = [];
+        this.#saveRegister = null;
+        this.#callStack = [];
+        this.#chooseOptions = [];
+        this.#definitions = {};
     }
 
     /**
@@ -282,7 +294,7 @@ class Interpreter {
      * 
      * WARNING: If this runs before {@link Interpreter.selectChoice} is true, it will throw an exception!
      *
-     * @param idx The 0 based index of choice, relative to {@link Interpreter.selectChoice}.
+     * @param idx The 0 based index of choice, relative to {@link Interpreter.choices}.
      */
     chooseChoice(idx: number): void {
         if (idx >= this.#choices.length) {
@@ -629,7 +641,7 @@ class Interpreter {
                 break;
 
             case Opcode.JumpFalsey:
-                if (this.#stack.pop()) {
+                if (!this.#stack.pop()) {
                     this.#instructionPointer += arg1;
                 }
                 break;
@@ -746,7 +758,10 @@ class Interpreter {
 
                 if (typeof chance === "number" && typeof text === "string") {
                     if (this.chanceCallback(chance)) {
-                        this.choices[this.#instructionPointer + arg1] = text;
+                        this.#choices.push({
+                            address: this.#instructionPointer + arg1,
+                            text 
+                        });
                     }
                 }
                 break;
@@ -763,7 +778,10 @@ class Interpreter {
 
                 if (typeof chance === "number" && typeof text === "string") {
                     if (condition && this.chanceCallback(chance)) {
-                        this.choices[this.#instructionPointer + arg1] = text;
+                        this.#choices.push({
+                            address: this.#instructionPointer + arg1, 
+                            text 
+                        });
                     }
                 }
                 break;
@@ -779,6 +797,7 @@ class Interpreter {
                 }
 
                 this.selectChoice = true;
+                this.inChoice = false;
                 this.paused = true;
                 break;
             }
@@ -809,6 +828,8 @@ class Interpreter {
                 break;
             }
 
+            // #endregion
+
             case Opcode.TextRun: {
                 let text: Value = this.#stack.pop();
 
@@ -819,8 +840,6 @@ class Interpreter {
                 }
                 break;
             }
-            
-                // #endregion
         }
     }
 

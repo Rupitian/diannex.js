@@ -1,0 +1,5 @@
+scene intro {
+    $greetings = "Hello"
+    local $name = "world"
+    "${$greetings}, ${$name}"
+}

@@ -1,0 +1,14 @@
+scene intro
+{
+  choice "Line 1"
+  {
+    "Yes"
+    {
+      "Yes"
+    }
+    "No"
+    {
+      "No"
+    }
+  }
+}
