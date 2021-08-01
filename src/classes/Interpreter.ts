@@ -286,7 +286,6 @@ class Interpreter {
         this.#saveRegister = null;
         this.#callStack = [];
         this.#chooseOptions = [];
-        this.#definitions = {};
     }
 
     /**

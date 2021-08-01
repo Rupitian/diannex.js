@@ -1,5 +1,7 @@
 import * as path from "path";
-import { DiannexFunc, Value } from "types";
+import {
+    DiannexFunc, Value 
+} from "types";
 
 import {
     Binary,
