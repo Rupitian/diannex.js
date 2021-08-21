@@ -3,6 +3,7 @@ import * as zlib from "zlib";
 
 import BinaryReader from "classes/BinaryReader";
 import { Definition } from "types";
+import Parser from "./Parser";
 
 /**
  * Representation of the binary.
@@ -77,7 +78,7 @@ class Binary {
         // Version
         const version: number = br.readUInt8();
 
-        if (version != 3) {
+        if (version < 3 || version > 4) {
             throw new BinaryReaderException("Binary not for this version of Diannex.");
         }
 
@@ -104,95 +105,46 @@ class Binary {
         }
 
         // Scene metadata
-        {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                const symbol: number = bfr.readUInt32();
-                const indicesSize: number = bfr.readUInt16();
-                const instructionIndices: number[] = [];
-                
-                for (let j = 0; j < indicesSize; j++) {
-                    instructionIndices.push(bfr.readInt32());
-                }
-
-                bin.scenes.push({
-                    symbol,
-                    instructionIndices
-                });
-            }
+        if (version >= 4) {
+            bfr.readUInt32();
         }
+        bin.scenes = Parser.parseSceneMetadata(bfr);
 
         // Function metadata
-        {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                const symbol: number = bfr.readUInt32();
-                const indicesSize: number = bfr.readUInt16();
-                const instructionIndices: number[] = [];
-                
-                for (let j = 0; j < indicesSize; j++) {
-                    instructionIndices.push(bfr.readInt32());
-                }
-
-                bin.functions.push({
-                    symbol,
-                    instructionIndices
-                });
-            }
+        if (version >= 4) {
+            bfr.readUInt32();
         }
+        bin.functions = Parser.parseFunctionMetadata(bfr);
 
         // Definition metadata
-        {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                const symbol: number = bfr.readUInt32();
-                const reference: number = bfr.readUInt32();
-                const instructionIndex: number = bfr.readInt32();
-
-                bin.definitions.push({
-                    symbol,
-                    reference,
-                    instructionIndex
-                });
-            }
+        if (version >= 4) {
+            bfr.readUInt32();
         }
+        bin.definitions = Parser.parseDefinitionMetadata(bfr);
 
         // Bytecode
-        {
-            const size: number = bfr.readUInt32();
-
-            bin.instructions = Buffer.from(bfr.readBytes(size));
-        }
+        const bytecodeSize: number = bfr.readUInt32();
+        bin.instructions = Buffer.from(bfr.readBytes(bytecodeSize));
 
         // Internal string table
-        {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                bin.stringTable.push(bfr.readString());
-            }
+        if (version >= 4) {
+            bfr.readUInt32();
         }
+        bin.stringTable = Parser.parseInternalStringTable(bfr);
 
         // Internal translation file
         if (flags.internalTranslationFile) {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                bin.translationTable.push(bfr.readString());
+            if (version >= 4) {
+                bfr.readUInt32();
             }
+            bin.translationTable = Parser.parseInternalTranslationFile(bfr);
         }
 
         // External function list
-        {
-            const size: number = bfr.readUInt32();
-
-            for (let i = 0; i < size; i++) {
-                bin.externalFunctionList.push(bfr.readUInt32());
-            }
+        if (version >= 4) {
+            bfr.readUInt32();
         }
+        bin.externalFunctionList = Parser.parseExternalFunctionList(bfr);
 
         return bin;
     };
