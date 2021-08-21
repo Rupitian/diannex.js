@@ -1,8 +1,6 @@
 import { Definition } from "types";
 import BinaryReader from "./BinaryReader";
 
-// NOTE: Maybe the functions should take a BinaryReader instead of a buffer, to avoid creating a new BinaryReader every time? Depends on when it's used.
-
 /**
  * Contains parsing functions for sections which can be loaded later.
 */
