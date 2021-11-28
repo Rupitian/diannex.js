@@ -31,12 +31,12 @@ class Binary {
     externalFunctionList: number[];
 
     scenes: Array<{
-        symbol: number,
-        instructionIndices: number[]
+        symbol: number;
+        instructionIndices: number[];
     }>;
     functions: Array<{
-        symbol: number,
-        instructionIndices: number[]
+        symbol: number;
+        instructionIndices: number[];
     }>;
     definitions: Definition[];
 
@@ -52,7 +52,7 @@ class Binary {
         this.functions = [];
         this.definitions = [];
     }
-    
+
     /**
      * Reads DXB data from file.
      * @param file The DXB file to read from.
@@ -65,7 +65,7 @@ class Binary {
      * Reads DXB data from buffer.
      * @param buf A buffer in the DXB format to read from.
      */
-    static readFromBuffer = (buf: Buffer): Binary => {       
+    static readFromBuffer = (buf: Buffer): Binary => {
         const br: BinaryReader = new BinaryReader(buf);
         const bin: Binary = new Binary();
 
@@ -79,19 +79,21 @@ class Binary {
         const version: number = br.readUInt8();
 
         if (version < 3 || version > 4) {
-            throw new BinaryReaderException("Binary not for this version of Diannex.");
+            throw new BinaryReaderException(
+                "Binary not for this version of Diannex."
+            );
         }
 
         // Flags
         const flagData: number = br.readUInt8();
         const flags: {
-            compressed: boolean,
-            internalTranslationFile: boolean
+            compressed: boolean;
+            internalTranslationFile: boolean;
         } = {
             compressed: !!(flagData & 1),
             internalTranslationFile: !!((flagData >> 1) & 1)
         };
-        
+
         bin.translationLoaded = flags.internalTranslationFile;
 
         // Read size and decompress zlib compressed data

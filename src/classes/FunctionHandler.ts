@@ -7,10 +7,10 @@ import {
  */
 class FunctionHandler {
     #funcs: Record<string, DiannexFunc>;
-    
+
     /**
      * Handles Diannex functions.
-     * 
+     *
      * @param funcs The initial functions to register.
      */
     constructor(funcs: Record<string, DiannexFunc> = {}) {
@@ -19,7 +19,7 @@ class FunctionHandler {
 
     /**
      * Executes a function with certain arguments.
-     * 
+     *
      * @param name The name of the function to execute.
      * @param args The arguments to pass along to the function.
      * @returns The return value of the function.
@@ -34,7 +34,7 @@ class FunctionHandler {
 
     /**
      * Registers a function for runtime execution.
-     * 
+     *
      * @param name The name of the function to register.
      * @param func The function to register.
      */
@@ -44,7 +44,7 @@ class FunctionHandler {
 
     /**
      * Removes a function from the register.
-     * 
+     *
      * @param name The name of the function to remove.
      */
     unregisterFunction(name: string): void {

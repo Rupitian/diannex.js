@@ -5,7 +5,7 @@ import Interpreter from "./Interpreter";
 
 /**
  * Handles Diannex variables.
- * 
+ *
  * @private
  */
 class LocalVariableStore {
@@ -14,12 +14,15 @@ class LocalVariableStore {
     #interpreter: Interpreter;
 
     get count(): number {
-        return Object.keys(this.variables).length + Object.keys(this.flagMap).length;
+        return (
+            Object.keys(this.variables).length +
+            Object.keys(this.flagMap).length
+        );
     }
 
     /**
      * Handles Diannex variables.
-     * 
+     *
      * @param interpreter The interpreter to use.
      */
     constructor(interpreter: Interpreter) {
@@ -30,7 +33,7 @@ class LocalVariableStore {
 
     /**
      * Adds a value to the end of the variable register.
-     * 
+     *
      * @param value The new value to add.
      */
     add(value: Value): void {
@@ -39,7 +42,7 @@ class LocalVariableStore {
 
     /**
      * Gets the value of a variable by ID.
-     * 
+     *
      * @param index The ID of the variable to get.
      * @returns The value of the variable.
      */
@@ -53,7 +56,7 @@ class LocalVariableStore {
 
     /**
      * Sets a variable by ID.
-     * 
+     *
      * @param index The ID of the variable to set.
      * @param value The value to set the variable to.
      */
@@ -67,7 +70,7 @@ class LocalVariableStore {
 
     /**
      * Removes a variable from the store by ID.
-     * 
+     *
      * @param index The ID of the variable that should be removed.
      */
     delete(index: number): void {

@@ -3,7 +3,7 @@ import BinaryReader from "./BinaryReader";
 
 /**
  * Contains parsing functions for sections which can be loaded later.
-*/
+ */
 class Parser {
     /**
      * Parses scene metadata.
@@ -24,7 +24,7 @@ class Parser {
             const symbol: number = bfr.readUInt32();
             const indicesSize: number = bfr.readUInt16();
             const instructionIndices: number[] = [];
-            
+
             for (let j = 0; j < indicesSize; j++) {
                 instructionIndices.push(bfr.readInt32());
             }
@@ -57,7 +57,7 @@ class Parser {
             const symbol: number = bfr.readUInt32();
             const indicesSize: number = bfr.readUInt16();
             const instructionIndices: number[] = [];
-            
+
             for (let j = 0; j < indicesSize; j++) {
                 instructionIndices.push(bfr.readInt32());
             }

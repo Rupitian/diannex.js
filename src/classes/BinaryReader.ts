@@ -1,13 +1,13 @@
 /**
  * Simple binary buffer reader.
- * 
+ *
  * @private
  */
 class BinaryReader {
     buf: Buffer;
     pos: number;
     isBigEndian: boolean;
-    
+
     constructor(buf: Buffer, startPos?: number, isBigEndian?: boolean) {
         this.buf = buf;
         this.pos = startPos || 0;
@@ -58,14 +58,14 @@ class BinaryReader {
         this.pos += 4;
         return out;
     }
-    
+
     /**
      * Reads a string from the buffer and moves the cursor.
      */
     readString(): string {
         let str: string = "";
-        let currentByte: number; 
-        
+        let currentByte: number;
+
         while ((currentByte = this.readUInt8()) != 0) {
             str += String.fromCharCode(currentByte);
         }
