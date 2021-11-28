@@ -33,7 +33,7 @@ const totallyNotAdding = (args: Value[]): Value => {
 const fh = new FunctionHandler();
 fh.registerFunction("totallyNotAdding", totallyNotAdding);
 ```
-Note that the function `totallyNotAdding` manually checks if the arguments are valid, and if not, it returns 0. This should always be done, as it's the only way to ensure that the function is called with the correct arguments.
+Note that the `totallyNotAdding(Value[])` function manually checks if the arguments are valid, and if not, it returns 0. This should always be done, as it's the only way to ensure that the function is called with the correct arguments. Diannex has no real way to check this for you. If you have developed API endpoints in JavaScript/TypeScript before, you may be familiar with this. Otherwise, it may take some time to get used to.
 
 ## Handling Interpreter.runningText
 When the `Interpreter` is ready to display dialogue to the user, it will set `Interpreter.runningText` to true, and will pause execution of the bytecode. 
